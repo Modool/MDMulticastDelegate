@@ -9,12 +9,14 @@
 /* Begin PBXBuildFile section */
 		0832A7FB1E0A902E00A132F9 /* MDMulticastDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 0832A7F91E0A902E00A132F9 /* MDMulticastDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0832A7FC1E0A902E00A132F9 /* MDMulticastDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0832A7FA1E0A902E00A132F9 /* MDMulticastDelegate.m */; };
+		08AFDFAE1E0AA2D000942754 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 08AFDFAD1E0AA2D000942754 /* Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0832A7EA1E0A8F7000A132F9 /* MDMulticastDelegate.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MDMulticastDelegate.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		0832A7F91E0A902E00A132F9 /* MDMulticastDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MDMulticastDelegate.h; sourceTree = SOURCE_ROOT; };
 		0832A7FA1E0A902E00A132F9 /* MDMulticastDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MDMulticastDelegate.m; sourceTree = SOURCE_ROOT; };
+		08AFDFAD1E0AA2D000942754 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +33,7 @@
 		0832A7E01E0A8F7000A132F9 = {
 			isa = PBXGroup;
 			children = (
+				08AFDFAD1E0AA2D000942754 /* Info.plist */,
 				0832A7EC1E0A8F7000A132F9 /* MDMulticastDelegate */,
 				0832A7EB1E0A8F7000A132F9 /* Products */,
 			);
@@ -122,6 +125,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				08AFDFAE1E0AA2D000942754 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,6 +247,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -260,6 +265,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
