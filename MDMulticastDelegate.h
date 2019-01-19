@@ -1,7 +1,5 @@
 #import <Foundation/Foundation.h>
 
-@class MDMulticastDelegateEnumerator;
-
 /**
  * This class provides multicast delegate functionality. That is:
  * - it provides a means for managing a list of delegates
@@ -24,21 +22,14 @@
  * All delegate dispatching is done asynchronously (which is a critically important architectural design).
 **/
 
-@interface MDMulticastDelegate : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-@property(nonatomic, strong, readonly) NSArray *allDelegateNodes;
+/// Unsupported union type.
+@interface MDMulticastDelegate<__covariant DelegateType> : NSObject 
 
-+ (id)multicastDelegateWithDelegate:(id)delegate;
-+ (id)multicastDelegateWithDelegates:(NSArray *)delegates;
-
-- (id)initWithDelegate:(id)delegate;
-- (id)initWithDelegates:(NSArray *)delegates;
-
-- (void)addDelegate:(id)delegate;
-- (void)addDelegates:(NSArray *)delegates;
-- (void)addDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue;
-- (void)removeDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue;
-- (void)removeDelegate:(id)delegate;
+- (void)addDelegate:(DelegateType)delegate delegateQueue:(dispatch_queue_t)delegateQueue;
+- (void)removeDelegate:(DelegateType)delegate delegateQueue:(nullable dispatch_queue_t)delegateQueue;
+- (void)removeDelegate:(DelegateType)delegate;
 
 - (void)removeAllDelegates;
 
@@ -48,19 +39,11 @@
 
 - (BOOL)hasDelegateThatRespondsToSelector:(SEL)aSelector;
 
-- (MDMulticastDelegateEnumerator *)delegateEnumerator;
+- (NSEnumerator<DelegateType> *)delegateEnumerator;
+- (NSArray<dispatch_queue_t> *)delegateQueuesForDelegate:(DelegateType)delegate;
+
+- (void)enumerateDelegateAndQueuesUsingBlock:(void (^)(DelegateType delegate, dispatch_queue_t delegateQueue, BOOL *stop))block;
 
 @end
 
-
-@interface MDMulticastDelegateEnumerator : NSObject
-
-- (NSUInteger)count;
-- (NSUInteger)countOfClass:(Class)aClass;
-- (NSUInteger)countForSelector:(SEL)aSelector;
-
-- (BOOL)getNextDelegate:(id *)delPtr delegateQueue:(dispatch_queue_t *)dqPtr;
-- (BOOL)getNextDelegate:(id *)delPtr delegateQueue:(dispatch_queue_t *)dqPtr ofClass:(Class)aClass;
-- (BOOL)getNextDelegate:(id *)delPtr delegateQueue:(dispatch_queue_t *)dqPtr forSelector:(SEL)aSelector;
-
-@end
+NS_ASSUME_NONNULL_END
