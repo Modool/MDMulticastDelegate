@@ -54,7 +54,7 @@
 }
 
 - (void)_removeDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue {
-    if (delegate) {
+    if (delegateQueue) {
         NSOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
         if (![queues containsObject:delegateQueue]) return;
 
