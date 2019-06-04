@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSEnumerator<DelegateType> *)delegateEnumerator;
 - (NSArray<dispatch_queue_t> *)delegateQueuesForDelegate:(DelegateType)delegate;
 
-- (void)enumerateDelegateAndQueuesUsingBlock:(void (^)(DelegateType delegate, dispatch_queue_t delegateQueue, BOOL *stop))block;
+- (void)enumerateDelegateAndQueuesUsingBlock:(void (NS_NOESCAPE ^)(DelegateType delegate, dispatch_queue_t delegateQueue, BOOL *stop))block;
 
 @end
 
