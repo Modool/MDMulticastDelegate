@@ -69,13 +69,9 @@
 }
 
 - (NSUInteger)_count {
-    NSMapTable<id, NSOrderedSet<dispatch_queue_t> *> *delegates = [_delegates copy];
-    NSEnumerator<NSOrderedSet<dispatch_queue_t> *> *enumerator = [delegates objectEnumerator];
-
     NSUInteger count = 0;
-    NSOrderedSet<dispatch_queue_t> *queues = nil;
-    while ((queues = enumerator.nextObject)) {
-        count += queues.count;
+    for (id delegate in _delegates) {
+        count += [_delegates objectForKey:delegate].count;
     }
     return count;
 }
@@ -83,45 +79,30 @@
 - (NSUInteger)_countOfDelegateBlock:(BOOL (^)(id delegate))block {
     if (!block) return 0;
 
-    NSMapTable<id, NSOrderedSet<dispatch_queue_t> *> *delegates = [_delegates copy];
-    NSEnumerator *enumerator = [delegates keyEnumerator];
     NSUInteger count = 0;
-
-    id delegate = nil;
-    while ((delegate = enumerator.nextObject) && block(delegate)) {
-        NSOrderedSet<dispatch_queue_t> *queues = [delegates objectForKey:delegate];
-
-        count += queues.count;
+    for (id delegate in _delegates) {
+        if (block(delegate)) {
+            count += [_delegates objectForKey:delegate].count;
+        }
     }
     return count;
 }
 
 - (BOOL)_hasDelegateThatRespondsToSelector:(SEL)aSelector {
-    NSMapTable<id, NSOrderedSet<dispatch_queue_t> *> *delegates = [_delegates copy];
-
-    NSEnumerator *enumerator = [delegates keyEnumerator];
-    id delegate = nil;
-    while ((delegate = enumerator.nextObject)) {
+    for (id delegate in _delegates) {
         if ([delegate respondsToSelector:aSelector]) return YES;
     }
     return NO;
 }
 
 - (void)_enumerateDelegateAndQueuesUsingBlock:(void (^)(id delegate, dispatch_queue_t delegateQueue, BOOL *stop))block {
-    NSMapTable<id, NSOrderedSet<dispatch_queue_t> *> *delegates = [_delegates copy];
-    NSEnumerator *enumerator = [delegates keyEnumerator];
-
-    id delegate = nil;
-    while ((delegate = enumerator.nextObject)) {
-        BOOL stop = NO;
-
-        NSOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
-        for (dispatch_queue_t queue in queues) {
+    BOOL stop = NO;
+    for (id delegate in _delegates) {
+        for (dispatch_queue_t queue in [_delegates objectForKey:delegate]) {
             block(delegate, queue, &stop);
 
-            if (stop) break;
+            if (stop) return;
         }
-        if (stop) break;
     }
 }
 
@@ -243,9 +224,7 @@
 #pragma mark - protected
 
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-    NSEnumerator *enumerator = [_delegates keyEnumerator];
-    id delegate = nil;
-    while ((delegate = enumerator.nextObject)) {
+    for (id delegate in _delegates) {
         NSMethodSignature *result = [delegate methodSignatureForSelector:aSelector];
 
         if (result) return result;
@@ -261,14 +240,10 @@
 - (void)forwardInvocation:(NSInvocation *)invocation {
     SEL selector = [invocation selector];
 
-    NSMapTable *delegates = [_delegates copy];
-    NSEnumerator *enumerator = [delegates keyEnumerator];
-
-    id delegate = nil;
-    while ((delegate = enumerator.nextObject)) {
+    for (id delegate in _delegates) {
         if (![delegate respondsToSelector:selector]) continue;
 
-        NSOrderedSet<dispatch_queue_t> *delegateQueues = [delegates objectForKey:delegate];
+        NSOrderedSet<dispatch_queue_t> *delegateQueues = [_delegates objectForKey:delegate];
         [self _invokeWithDelegate:delegate queues:delegateQueues invocation:invocation];
     }
 }
