@@ -95,7 +95,7 @@
     return NO;
 }
 
-- (void)_enumerateDelegateAndQueuesUsingBlock:(void (^)(id delegate, dispatch_queue_t delegateQueue, BOOL *stop))block {
+- (void)_enumerateDelegateAndQueuesUsingBlock:(void (NS_NOESCAPE ^)(id delegate, dispatch_queue_t delegateQueue, BOOL *stop))block {
     BOOL stop = NO;
     for (id delegate in _delegates) {
         for (dispatch_queue_t queue in [_delegates objectForKey:delegate]) {
