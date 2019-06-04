@@ -215,7 +215,7 @@
     return queues;
 }
 
-- (void)enumerateDelegateAndQueuesUsingBlock:(void (^)(id delegate, dispatch_queue_t delegateQueue, BOOL *stop))block {
+- (void)enumerateDelegateAndQueuesUsingBlock:(void (NS_NOESCAPE ^)(id delegate, dispatch_queue_t delegateQueue, BOOL *stop))block {
     [_lock lock];
     [self _enumerateDelegateAndQueuesUsingBlock:block];
     [_lock unlock];
