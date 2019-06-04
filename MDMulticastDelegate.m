@@ -88,7 +88,11 @@
     NSUInteger count = 0;
 
     id delegate = nil;
-    while ((delegate = enumerator.nextObject) && block(delegate)) {
+    while ((delegate = enumerator.nextObject)) {
+        if (!block(delegate)) {
+            continue;
+        }
+
         NSOrderedSet<dispatch_queue_t> *queues = [delegates objectForKey:delegate];
 
         count += queues.count;
