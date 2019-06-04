@@ -26,7 +26,7 @@
 
 @interface MDMulticastDelegate () {
     NSRecursiveLock *_lock;
-    NSMapTable<id, NSOrderedSet<dispatch_queue_t> *> *_delegates;
+    NSMapTable<id, NSMutableOrderedSet<dispatch_queue_t> *> *_delegates;
 }
 
 - (NSInvocation *)duplicateInvocation:(NSInvocation *)origInvocation;
@@ -38,7 +38,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         _lock = [[NSRecursiveLock alloc] init];
-        _delegates = [NSMapTable<id, NSOrderedSet<dispatch_queue_t> *> weakToStrongObjectsMapTable];
+        _delegates = [NSMapTable weakToStrongObjectsMapTable];
     }
     return self;
 }
@@ -46,23 +46,23 @@
 #pragma mark - private
 
 - (void)_addDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue {
-    NSOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
-    NSMutableOrderedSet<dispatch_queue_t> *mutableQueues = queues ? [queues mutableCopy] : [NSMutableOrderedSet orderedSet];
-    [mutableQueues addObject:delegateQueue];
+    NSMutableOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
+    if (!queues) {
+        queues = [NSMutableOrderedSet orderedSet];
+        [_delegates setObject:queues forKey:delegate];
+    }
 
-    [_delegates setObject:mutableQueues.copy forKey:delegate];
+    [queues addObject:delegateQueue];
 }
 
 - (void)_removeDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue {
-    if (delegate) {
-        NSOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
-        if (![queues containsObject:delegateQueue]) return;
-
-        NSMutableOrderedSet<dispatch_queue_t> *mutableQueues = queues ? [queues mutableCopy] : [NSMutableOrderedSet<dispatch_queue_t> orderedSet];
-        [mutableQueues removeObject:delegateQueue];
-
-        if (mutableQueues.count) [_delegates setObject:mutableQueues.copy forKey:delegate];
-        else [_delegates removeObjectForKey:delegate];
+    if (delegateQueue) {
+        NSMutableOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
+        [queues removeObject:delegateQueue];
+        
+        if (!queues.count) {
+            [_delegates removeObjectForKey:delegate];
+        }
     } else {
         [_delegates removeObjectForKey:delegate];
     }
