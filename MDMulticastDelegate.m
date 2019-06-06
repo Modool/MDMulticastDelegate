@@ -43,7 +43,7 @@
     NSMutableOrderedSet<dispatch_queue_t> *mutableQueues = queues ?: [NSMutableOrderedSet<dispatch_queue_t> orderedSet];
     [mutableQueues addObject:delegateQueue];
 
-    [_delegates setObject:mutableQueues.copy forKey:delegate];
+    [_delegates setObject:mutableQueues forKey:delegate];
 }
 
 - (void)_removeDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue {
@@ -54,7 +54,7 @@
         NSMutableOrderedSet<dispatch_queue_t> *mutableQueues = queues ?: [NSMutableOrderedSet<dispatch_queue_t> orderedSet];
         [mutableQueues removeObject:delegateQueue];
 
-        if (mutableQueues.count) [_delegates setObject:mutableQueues.copy forKey:delegate];
+        if (mutableQueues.count) [_delegates setObject:mutableQueues forKey:delegate];
         else [_delegates removeObjectForKey:delegate];
     } else {
         [_delegates removeObjectForKey:delegate];
