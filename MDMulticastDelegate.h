@@ -20,7 +20,7 @@
  * So each delegate specifies which queue they would like their delegate invocations to be dispatched onto.
  *
  * All delegate dispatching is done asynchronously (which is a critically important architectural design).
- **/
+**/
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -68,6 +68,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Count of delegates.
+
+ @param aClass class of delegate
  */
 - (NSUInteger)countOfDelegates;
 
@@ -97,7 +99,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param block block for selection of delegate item
  */
-- (void)enumerateDelegatesAndQueuesUsingBlock:(NS_NOESCAPE void (^)(DelegateType delegate, dispatch_queue_t delegateQueue, BOOL *stop))block;
+- (void)enumerateDelegatesAndQueuesUsingBlock:(void (^)(DelegateType delegate, dispatch_queue_t delegateQueue, BOOL *stop))block;
 
 @end
 

@@ -1,4 +1,9 @@
 #import "MDMulticastDelegate.h"
+#import <libkern/OSAtomic.h>
+
+#if __has_feature(objc_arc_weak) && !TARGET_OS_IPHONE
+#import <AppKit/AppKit.h>
+#endif
 
 #if ! __has_feature(objc_arc)
 #warning This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
@@ -21,7 +26,7 @@
 
 @interface MDMulticastDelegate () {
     NSRecursiveLock *_lock;
-    NSMapTable<id, NSMutableOrderedSet<dispatch_queue_t> *> *_delegates;
+    NSMapTable<id, NSOrderedSet<dispatch_queue_t> *> *_delegates;
 }
 
 @end
@@ -31,7 +36,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         _lock = [[NSRecursiveLock alloc] init];
-        _delegates = [NSMapTable<id, NSMutableOrderedSet<dispatch_queue_t> *> weakToStrongObjectsMapTable];
+        _delegates = [NSMapTable<id, NSOrderedSet<dispatch_queue_t> *> weakToStrongObjectsMapTable];
     }
     return self;
 }
@@ -39,22 +44,22 @@
 #pragma mark - private
 
 - (void)_addDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue {
-    NSMutableOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
-    NSMutableOrderedSet<dispatch_queue_t> *mutableQueues = queues ?: [NSMutableOrderedSet<dispatch_queue_t> orderedSet];
+    NSOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
+    NSMutableOrderedSet<dispatch_queue_t> *mutableQueues = queues ? [queues mutableCopy] : [NSMutableOrderedSet orderedSet];
     [mutableQueues addObject:delegateQueue];
 
-    [_delegates setObject:mutableQueues forKey:delegate];
+    [_delegates setObject:mutableQueues.copy forKey:delegate];
 }
 
 - (void)_removeDelegate:(id)delegate delegateQueue:(dispatch_queue_t)delegateQueue {
     if (delegateQueue) {
-        NSMutableOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
+        NSOrderedSet<dispatch_queue_t> *queues = [_delegates objectForKey:delegate];
         if (![queues containsObject:delegateQueue]) return;
 
-        NSMutableOrderedSet<dispatch_queue_t> *mutableQueues = queues ?: [NSMutableOrderedSet<dispatch_queue_t> orderedSet];
+        NSMutableOrderedSet<dispatch_queue_t> *mutableQueues = queues ? [queues mutableCopy] : [NSMutableOrderedSet<dispatch_queue_t> orderedSet];
         [mutableQueues removeObject:delegateQueue];
 
-        if (mutableQueues.count) [_delegates setObject:mutableQueues forKey:delegate];
+        if (mutableQueues.count) [_delegates setObject:mutableQueues.copy forKey:delegate];
         else [_delegates removeObjectForKey:delegate];
     } else {
         [_delegates removeObjectForKey:delegate];
@@ -75,7 +80,7 @@
 
 - (NSUInteger)_countOfDelegateBlock:(BOOL (^)(id delegate))block {
     if (!block) return 0;
-
+    
     __block NSUInteger count = 0;
     [self _enumerateDelegatesUsingBlock:^(id delegate, NSOrderedSet<dispatch_queue_t> *queues, BOOL *stopPtr) {
         if (block(delegate)) count += queues.count;
@@ -87,8 +92,8 @@
 - (BOOL)_hasDelegateThatRespondsToSelector:(SEL)aSelector {
     __block BOOL contained = NO;
     [self _enumerateDelegatesByRespondingSelector:aSelector block:^(id delegate, NSOrderedSet<dispatch_queue_t> *queues, BOOL *stopPtr) {
-        contained = YES;
-        *stopPtr = YES;
+            contained = YES;
+            *stopPtr = YES;
     }];
     return contained;
 }
